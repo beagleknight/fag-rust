@@ -6,6 +6,7 @@ use quicksilver::{
 };
 
 mod bullet;
+mod enemy;
 mod game;
 mod player;
 mod tile_map;
