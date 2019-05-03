@@ -5,6 +5,7 @@ use quicksilver::{
     lifecycle::{run, Settings},
 };
 
+mod bullet;
 mod game;
 mod player;
 mod tile_map;

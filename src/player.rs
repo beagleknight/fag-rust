@@ -1,3 +1,4 @@
+use crate::bullet::Bullet;
 use crate::tile_map::CANVAS_HEIGHT;
 use crate::tile_map::CANVAS_WIDTH;
 use quicksilver::{
@@ -10,6 +11,8 @@ use quicksilver::{
 };
 
 const PLAYER_SPEED: f64 = 0.5;
+const CANNON_Y: i32 = 15;
+const TIME_TO_SHOOT: f64 = 300.0;
 
 pub struct Player {
   asset: Asset<Image>,
@@ -17,6 +20,8 @@ pub struct Player {
   y: i32,
   width: i32,
   height: i32,
+  bullets: Vec<Bullet>,
+  last_shoot_at: f64,
 }
 
 impl Player {
@@ -29,6 +34,8 @@ impl Player {
       y,
       width,
       height,
+      bullets: Vec::new(),
+      last_shoot_at: 0.0,
     }
   }
 
@@ -42,19 +49,36 @@ impl Player {
     })?;
 
     let speed = (PLAYER_SPEED * window.update_rate()).ceil() as i32;
+    let keyboard = window.keyboard();
 
-    if window.keyboard()[Key::Left].is_down() {
+    if keyboard[Key::Left].is_down() {
       self.change_position_by(-speed, 0);
     }
-    if window.keyboard()[Key::Right].is_down() {
+
+    if keyboard[Key::Right].is_down() {
       self.change_position_by(speed, 0);
     }
-    if window.keyboard()[Key::Down].is_down() {
+
+    if keyboard[Key::Down].is_down() {
       self.change_position_by(0, speed);
     }
-    if window.keyboard()[Key::Up].is_down() {
+
+    if keyboard[Key::Up].is_down() {
       self.change_position_by(0, -speed);
     }
+
+    if keyboard[Key::Space].is_down() && self.last_shoot_at >= TIME_TO_SHOOT {
+      self.last_shoot_at = 0.0;
+      self.shoot();
+    }
+
+    for bullet in self.bullets.iter_mut() {
+      bullet.draw(window)?;
+    }
+
+    self.last_shoot_at += window.update_rate();
+
+    self.bullets.retain(|bullet| !bullet.dead);
 
     Ok(())
   }
@@ -78,5 +102,10 @@ impl Player {
     if self.y + self.height / 2 >= CANVAS_HEIGHT {
       self.y = CANVAS_HEIGHT - self.height / 2;
     }
+  }
+
+  fn shoot(&mut self) {
+    let bullet = Bullet::new(self.x, self.y - CANNON_Y);
+    self.bullets.push(bullet);
   }
 }
