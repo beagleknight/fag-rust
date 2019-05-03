@@ -1,0 +1,13 @@
+[package]
+name = "fag-rust"
+version = "0.1.0"
+authors = ["David Morcillo <david.morcillo@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+rand = "0.6.5"
+
+[dependencies.quicksilver]
+version = "0.3.10"
+default-features = false
+features = []
