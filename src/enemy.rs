@@ -26,7 +26,7 @@ pub struct Enemy {
   width: i32,
   height: i32,
   pub dead: bool,
-  bullets: Vec<Bullet>,
+  pub bullets: Vec<Bullet>,
   move_right: bool,
   last_changed_direction_at: f64,
   last_shoot_at: f64,

@@ -63,10 +63,16 @@ impl Game {
   }
 
   fn check_collisions(&mut self) {
-    for player_bullet in self.player.bullets.iter_mut() {
-      for enemy in self.enemies.iter_mut() {
+    for enemy in self.enemies.iter_mut() {
+      for player_bullet in self.player.bullets.iter_mut() {
         if sprite_collision(player_bullet, enemy) {
           enemy.hit();
+        }
+      }
+
+      for enemy_bullet in enemy.bullets.iter_mut() {
+        if sprite_collision(enemy_bullet, &mut self.player) {
+          self.player.hit();
         }
       }
     }

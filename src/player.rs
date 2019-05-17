@@ -1,4 +1,7 @@
 use crate::bullet::Bullet;
+use crate::sprite::Dimensions2D;
+use crate::sprite::Sprite;
+use crate::sprite::Vector2D;
 use crate::tile_map::CANVAS_HEIGHT;
 use crate::tile_map::CANVAS_WIDTH;
 use quicksilver::{
@@ -13,6 +16,7 @@ use quicksilver::{
 const PLAYER_SPEED: f64 = 0.5;
 const CANNON_Y: i32 = 15;
 const TIME_TO_SHOOT: f64 = 300.0;
+const TIME_TO_INMUNE: f64 = 500.0;
 
 pub struct Player {
   asset: Asset<Image>,
@@ -22,6 +26,23 @@ pub struct Player {
   height: i32,
   pub bullets: Vec<Bullet>,
   last_shoot_at: f64,
+  inmune: bool,
+  last_damaged_at: f64,
+}
+
+impl Sprite for Player {
+  fn position(&self) -> Vector2D {
+    Vector2D {
+      x: self.x,
+      y: self.y,
+    }
+  }
+  fn size(&self) -> Dimensions2D {
+    Dimensions2D {
+      w: self.width,
+      h: self.height,
+    }
+  }
 }
 
 impl Player {
@@ -36,6 +57,8 @@ impl Player {
       height,
       bullets: Vec::new(),
       last_shoot_at: 0.0,
+      inmune: false,
+      last_damaged_at: 0.0,
     }
   }
 
@@ -43,10 +66,12 @@ impl Player {
     let x = self.x;
     let y = self.y;
 
-    self.asset.execute(|image| {
-      window.draw(&image.area().with_center((x, y)), Img(&image));
-      Ok(())
-    })?;
+    if !self.inmune || self.last_damaged_at.ceil() % 2.0 == 0.0 {
+      self.asset.execute(|image| {
+        window.draw(&image.area().with_center((x, y)), Img(&image));
+        Ok(())
+      })?;
+    }
 
     let speed = (PLAYER_SPEED * window.update_rate()).ceil() as i32;
     let keyboard = window.keyboard();
@@ -78,6 +103,13 @@ impl Player {
 
     self.last_shoot_at += window.update_rate();
 
+    if self.inmune {
+      if self.last_damaged_at > TIME_TO_INMUNE {
+        self.inmune = false;
+      }
+      self.last_damaged_at += window.update_rate();
+    }
+
     self.bullets.retain(|bullet| !bullet.dead);
 
     Ok(())
@@ -107,5 +139,12 @@ impl Player {
   fn shoot(&mut self) {
     let bullet = Bullet::new(self.x, self.y - CANNON_Y, false);
     self.bullets.push(bullet);
+  }
+
+  pub fn hit(&mut self) {
+    if !self.inmune {
+      self.inmune = true;
+      self.last_damaged_at = 0.0;
+    }
   }
 }
