@@ -70,9 +70,16 @@ impl Game {
         }
       }
 
-      for enemy_bullet in enemy.bullets.iter_mut() {
-        if sprite_collision(enemy_bullet, &mut self.player) {
+      if !enemy.dead {
+        for enemy_bullet in enemy.bullets.iter_mut() {
+          if sprite_collision(enemy_bullet, &mut self.player) {
+            self.player.hit();
+          }
+        }
+
+        if sprite_collision(&mut self.player, enemy) {
           self.player.hit();
+          enemy.hit();
         }
       }
     }
