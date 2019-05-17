@@ -20,7 +20,7 @@ pub struct Player {
   y: i32,
   width: i32,
   height: i32,
-  bullets: Vec<Bullet>,
+  pub bullets: Vec<Bullet>,
   last_shoot_at: f64,
 }
 

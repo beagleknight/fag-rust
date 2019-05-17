@@ -1,4 +1,5 @@
 use crate::enemy::Enemy;
+use crate::physics::sprite_collision;
 use crate::player::Player;
 use crate::tile_map::TileMap;
 use crate::tile_map::CANVAS_WIDTH;
@@ -48,6 +49,8 @@ impl State for Game {
 
     self.last_enemy_spawned_at += window.update_rate();
 
+    self.check_collisions();
+
     Ok(())
   }
 }
@@ -57,5 +60,15 @@ impl Game {
     let mut rng = rand::thread_rng();
     let enemy = Enemy::new(rng.gen_range(20, CANVAS_WIDTH - 20), -20, 40, 32);
     self.enemies.push(enemy);
+  }
+
+  fn check_collisions(&mut self) {
+    for player_bullet in self.player.bullets.iter_mut() {
+      for enemy in self.enemies.iter_mut() {
+        if sprite_collision(player_bullet, enemy) {
+          enemy.hit();
+        }
+      }
+    }
   }
 }

@@ -1,3 +1,6 @@
+use crate::sprite::Dimensions2D;
+use crate::sprite::Sprite;
+use crate::sprite::Vector2D;
 use quicksilver::{
   geom::Shape,
   graphics::Image,
@@ -14,6 +17,18 @@ pub struct Bullet {
   y: i32,
   from_enemy: bool,
   pub dead: bool,
+}
+
+impl Sprite for Bullet {
+  fn position(&self) -> Vector2D {
+    Vector2D {
+      x: self.x,
+      y: self.y,
+    }
+  }
+  fn size(&self) -> Dimensions2D {
+    Dimensions2D { w: 11, h: 10 }
+  }
 }
 
 impl Bullet {
@@ -50,7 +65,9 @@ impl Bullet {
       self.y - speed
     };
 
-    self.dead = self.y <= 0;
+    if !self.dead {
+      self.dead = self.y <= 0;
+    }
 
     Ok(())
   }

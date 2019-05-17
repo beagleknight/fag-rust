@@ -8,7 +8,9 @@ use quicksilver::{
 mod bullet;
 mod enemy;
 mod game;
+mod physics;
 mod player;
+mod sprite;
 mod tile_map;
 
 fn main() {

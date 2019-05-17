@@ -1,4 +1,7 @@
 use crate::bullet::Bullet;
+use crate::sprite::Dimensions2D;
+use crate::sprite::Sprite;
+use crate::sprite::Vector2D;
 use crate::tile_map::CANVAS_HEIGHT;
 use crate::tile_map::CANVAS_WIDTH;
 use quicksilver::{
@@ -27,6 +30,21 @@ pub struct Enemy {
   move_right: bool,
   last_changed_direction_at: f64,
   last_shoot_at: f64,
+}
+
+impl Sprite for Enemy {
+  fn position(&self) -> Vector2D {
+    Vector2D {
+      x: self.x,
+      y: self.y,
+    }
+  }
+  fn size(&self) -> Dimensions2D {
+    Dimensions2D {
+      w: self.width,
+      h: self.height,
+    }
+  }
 }
 
 impl Enemy {
@@ -66,9 +84,11 @@ impl Enemy {
       (-self.vx * window.update_rate()) as i32
     };
 
-    self.dead = self.y >= CANVAS_HEIGHT + self.height / 2
-      || self.x - self.width / 2 <= 0
-      || self.x + self.width / 2 >= CANVAS_WIDTH;
+    if !self.dead {
+      self.dead = self.y >= CANVAS_HEIGHT + self.height / 2
+        || self.x - self.width / 2 <= 0
+        || self.x + self.width / 2 >= CANVAS_WIDTH;
+    }
 
     if self.last_changed_direction_at >= TIME_TO_CHANGE_DIRECTION {
       let mut rng = rand::thread_rng();
@@ -96,5 +116,9 @@ impl Enemy {
   fn shoot(&mut self) {
     let bullet = Bullet::new(self.x, self.y + CANNON_Y, true);
     self.bullets.push(bullet);
+  }
+
+  pub fn hit(&mut self) {
+    self.dead = true;
   }
 }
