@@ -12,6 +12,7 @@ use rand::Rng;
 
 const CANNON_Y: i32 = 15;
 const TIME_TO_CHANGE_DIRECTION: f64 = 2000.0;
+const TIME_TO_SHOOT: f64 = 1000.0;
 
 pub struct Enemy {
   asset: Asset<Image>,
@@ -25,6 +26,7 @@ pub struct Enemy {
   bullets: Vec<Bullet>,
   move_right: bool,
   last_changed_direction_at: f64,
+  last_shoot_at: f64,
 }
 
 impl Enemy {
@@ -44,6 +46,7 @@ impl Enemy {
       bullets: Vec::new(),
       move_right: true,
       last_changed_direction_at: 0.0,
+      last_shoot_at: 0.0,
     }
   }
 
@@ -73,6 +76,11 @@ impl Enemy {
       self.move_right = rng.gen_bool(0.5);
     }
 
+    if self.vy > 0.0 && self.last_shoot_at >= TIME_TO_SHOOT {
+      self.last_shoot_at = 0.0;
+      self.shoot();
+    }
+
     for bullet in self.bullets.iter_mut() {
       bullet.draw(window)?;
     }
@@ -80,12 +88,13 @@ impl Enemy {
     self.bullets.retain(|bullet| !bullet.dead);
 
     self.last_changed_direction_at += window.update_rate();
+    self.last_shoot_at += window.update_rate();
 
     Ok(())
   }
 
   fn shoot(&mut self) {
-    let bullet = Bullet::new(self.x, self.y + CANNON_Y);
+    let bullet = Bullet::new(self.x, self.y + CANNON_Y, true);
     self.bullets.push(bullet);
   }
 }

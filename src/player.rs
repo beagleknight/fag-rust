@@ -105,7 +105,7 @@ impl Player {
   }
 
   fn shoot(&mut self) {
-    let bullet = Bullet::new(self.x, self.y - CANNON_Y);
+    let bullet = Bullet::new(self.x, self.y - CANNON_Y, false);
     self.bullets.push(bullet);
   }
 }

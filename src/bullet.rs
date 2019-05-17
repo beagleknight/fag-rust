@@ -12,17 +12,23 @@ pub struct Bullet {
   asset: Asset<Image>,
   x: i32,
   y: i32,
+  from_enemy: bool,
   pub dead: bool,
 }
 
 impl Bullet {
-  pub fn new(x: i32, y: i32) -> Bullet {
-    let asset = Asset::new(Image::load("sprites/player_bullet.gif"));
+  pub fn new(x: i32, y: i32, from_enemy: bool) -> Bullet {
+    let asset = if from_enemy {
+      Asset::new(Image::load("sprites/enemy_bullet.gif"))
+    } else {
+      Asset::new(Image::load("sprites/player_bullet.gif"))
+    };
 
     Bullet {
       asset,
       x,
       y,
+      from_enemy,
       dead: false,
     }
   }
@@ -38,7 +44,11 @@ impl Bullet {
 
     let speed = (BULLET_SPEED * window.update_rate()) as i32;
 
-    self.y -= speed;
+    self.y = if self.from_enemy {
+      self.y + speed
+    } else {
+      self.y - speed
+    };
 
     self.dead = self.y <= 0;
 
